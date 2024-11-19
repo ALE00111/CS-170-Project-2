@@ -4,6 +4,7 @@
 #include <cstdlib> 
 #include <vector> 
 #include <unordered_map>
+#include <algorithm>
 using namespace std;
 
 class Node {
@@ -31,36 +32,47 @@ class Node {
         }
 
         void evaluation() {
-            percentage = rand() % (51) + 50;
+            //Sets percenatge to values between 0 and 100
+            percentage = static_cast<double>(rand()) / RAND_MAX * 100.0;
+            percentage = round(percentage * 10.0) / 10.0;
         }
 
-        int getEvaluation() {
+        double getEvaluation() {
             return percentage;
         }
-        
-    private:
+
+        int sizeOfNode() {
+            return numList.size();
+        }
+
+        void printNums() {
+            for(int i = 0; i < numList.size() ; ++i) {
+                if((numList.size() == 1) || (i == numList.size() - 1)) {
+                    cout << numList.at(i);
+                }
+                else {
+                    cout << numList.at(i) << ", ";
+                }
+            }
+        }
+
+        void resetPercentage() {
+            percentage = 0.0;
+        }
+
         vector<int> numList;
-        int percentage;
+        double percentage;
 };
 
 
-double ForwardSelection(vector<int> featuresList);
-double BackwardElimination(vector<int> featuresList);
-
-// bool isGoal(vector<int> goalState, vector<Node> list) {
-//         for(int i = 0; i < list.size(); ++i) {
-//             for(int j = 0; j < )
-//             if(list.at(i).getValueAtIndex(i) != goalState.at(i)) {
-//                 return false;
-//                }
-//         }
-//         return true;
-// }
+Node ForwardSelection(vector<int> featuresList);
+Node BackwardElimination(vector<int> featuresList);
 
 int main() {
     srand(time(0)); 
     int numFeatures;
     int algo;
+    Node bestNode;
 
 
     cout << "Welcome to the Feature Selection ALgorithms" << endl;
@@ -86,64 +98,128 @@ int main() {
     }
 
     if(algo == 1) {
-        ForwardSelection(featuresList);
+        bestNode = ForwardSelection(featuresList);
     }
     else if(algo == 2) {
-        BackwardElimination(featuresList);
+        bestNode = BackwardElimination(featuresList);
     }
+
+    cout << "Finished Search! The Best feature subset is {";
+    bestNode.printNums();
+    cout << "}, which has an accuracy of " << bestNode.getEvaluation() << "%" << endl;
 
     return 0;
 }
 
-// int evaluation() {
-//     //For now it will return a random number between 50 to 100
-//     return rand() % (51) + 50;
-// }
+bool isGoalState(vector<Node> listOfNodes, vector<int> featuresList) {
+    for(int i = 0; i < listOfNodes.size(); ++i) {
+      if(listOfNodes.at(i).sizeOfNode() == featuresList.size()) {
+        return true;
+      }
+    }
+    return false; 
+}
 
-double ForwardSelection(vector<int> featuresList) {
-    //We're creating the forward selection algorithm
-    //ALL WORK IN PROGRESS
-    vector<Node> listOfNodes;
+Node ForwardSelection(vector<int> featuresList) {
+    //We're creating the forward selection algorithm(greedy)
+    //Starts with empty set, then add's all features and continues to expand the node with highest evaluation with all its possibilities until reach a goal state
+    vector<Node> listOfNodes; //List of all nodes with highest percentages in their depths
     Node bestNode;    //Highest percentage node in all the possibilites
+    Node prevBest;     //The highest percentage node of the previous depth to know which node to expand
     Node currentBest; //Highest percentage out of all nodes in their current depth
+    vector<int> vectorOfPrev; //Since once finding the first node that is highest, all other features will be added to that individual node
     int indexOfCurrent;
     bestNode.evaluation();
-    cout << bestNode.getEvaluation() << "%" << endl;
+    cout << bestNode.getEvaluation() << "%" << endl << endl;
+    prevBest = bestNode;
+    int depths = featuresList.size(); // The number of depths that the algorithm should search is the num of features there are, this is also the depth of the goal state
+    listOfNodes.push_back(bestNode); //Adding empty node to list as first
+    cout << "Beginning search: " << endl << endl;
 
 
-    vector<int> goalState;
+
+    //To find node at first depth because that node's vector values will be built upon by the other features
     for(int i = 0; i < featuresList.size(); ++i) {
         Node temp;
+
         temp.addValue(featuresList.at(i));
         temp.evaluation();
-        if(temp.getEvaluation() > currentBest.getEvaluation()) {
-            currentBest = temp;
-            indexOfCurrent = i;
-        }
-        listOfNodes.push_back(temp);
-        goalState.push_back(featuresList.at(i));
-
+            
         if(i == 0) {
             currentBest = temp;
         }
+
+
+        if(temp.getEvaluation() > currentBest.getEvaluation()) {
+            currentBest = temp;
+        }
+
+        //You can add each node to the list, or only add the nodes that are the best at that current depth
+        //listOfNodes.push_back(temp);
+
+        cout << "Using feature(s) {";
+        temp.printNums();
+        cout << "} accuracy is " << temp.getEvaluation() << "%" << endl;
     }
-    
+
+    listOfNodes.push_back(currentBest);
     if(currentBest.getEvaluation() > bestNode.getEvaluation()) {
         bestNode = currentBest;
     }
+    vectorOfPrev = currentBest.numList; //Sets the best vector list for the current depth
+    --depths;
+
+    //After, loop until you reach goal state
+    while(depths > 0) {
+        cout << endl;
+        cout << "Feature Set {";
+        currentBest.printNums();
+        cout << "} was best, accuracy is " << currentBest.getEvaluation() << "%" << endl << endl;
+        currentBest.resetPercentage(); //Reset the percentage so the first node of each dpeth will be the currentBest
+        for(int i = 0; i < featuresList.size(); ++i) {
+            Node temp;
+            temp.numList = vectorOfPrev;
+            if(temp.numWithin(featuresList.at(i))) {
+                continue;
+            }
+            else {
+                temp.addValue(featuresList.at(i));
+                temp.evaluation();
+            }
+
+            if(temp.getEvaluation() > currentBest.getEvaluation()) {
+                currentBest = temp;
+                indexOfCurrent = i;
+            }
+
+            //You can add each node to the list, or only add the nodes that are the best at that current depth
+            //listOfNodes.push_back(temp);
+
+            cout << "Using feature(s) {";
+            temp.printNums();
+            cout << "} accuracy is " << temp.getEvaluation() << "%" << endl;
+        }
+
+        listOfNodes.push_back(currentBest);
+        vectorOfPrev = currentBest.numList; //Gets the best node's values and places it within this variable to be used in the next depth
+        
+        if(currentBest.getEvaluation() > bestNode.getEvaluation()) {
+            bestNode = currentBest;
+        }
+        --depths;
+    }
+    cout << endl << endl;
     
-
-    //From here, we've expanded to our first level with only one value in each node and now we'll take the bestNode and remove it from our vector
-    //and add their value to the other nodes to expand them. The value we want to add to the other nodes is the one that is in currentBestNode 
-    //in that depth and it'll always be the node at the front of the list
-
-
     //Our goal is to stop when we searched to the point where the listOfNodes contains a node that has the values of all the features(goalState)
+    //Then return the highest percentage node(bestNode)
 
-    return 100.0;
+    return bestNode;
 }
 
 
-double BackwardElimination(vector<int> featuresList) {
-    return 100.0;
+Node BackwardElimination(vector<int> featuresList) {
+    //Implementing backwwards elimination(greedy)
+    //Starts with all possible features in one set, then elimiantes one feature at a time basedo on lowest evaluation and yo ugo until theres no more features
+    Node bestNode;
+    return bestNode;
 }
