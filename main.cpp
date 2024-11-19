@@ -125,13 +125,10 @@ Node ForwardSelection(vector<int> featuresList) {
     //Starts with empty set, then add's all features and continues to expand the node with highest evaluation with all its possibilities until reach a goal state
     vector<Node> listOfNodes; //List of all nodes with highest percentages in their depths
     Node bestNode;    //Highest percentage node in all the possibilites
-    Node prevBest;     //The highest percentage node of the previous depth to know which node to expand
     Node currentBest; //Highest percentage out of all nodes in their current depth
     vector<int> vectorOfPrev; //Since once finding the first node that is highest, all other features will be added to that individual node
-    int indexOfCurrent;
     bestNode.evaluation();
     cout << bestNode.getEvaluation() << "%" << endl << endl;
-    prevBest = bestNode;
     int depths = featuresList.size(); // The number of depths that the algorithm should search is the num of features there are, this is also the depth of the goal state
     listOfNodes.push_back(bestNode); //Adding empty node to list as first
     cout << "Beginning search: " << endl << endl;
@@ -189,7 +186,6 @@ Node ForwardSelection(vector<int> featuresList) {
 
             if(temp.getEvaluation() > currentBest.getEvaluation()) {
                 currentBest = temp;
-                indexOfCurrent = i;
             }
 
             //You can add each node to the list, or only add the nodes that are the best at that current depth
@@ -221,5 +217,15 @@ Node BackwardElimination(vector<int> featuresList) {
     //Implementing backwwards elimination(greedy)
     //Starts with all possible features in one set, then elimiantes one feature at a time basedo on lowest evaluation and yo ugo until theres no more features
     Node bestNode;
+    Node currentBest;
+    vector<Node> listOfNodes;
+    vector<int> vectorOfPrev;
+    
+
+
+
+
+
+
     return bestNode;
 }
