@@ -171,6 +171,10 @@ Node ForwardSelection(vector<int> featuresList) {
         if(currentBest.getEvaluation() > bestNode.getEvaluation()) {
             bestNode = currentBest;
         }
+        else { //Evaluation Drops so stop search
+            cout << "(Warning, Accuracy Has Decreased!)" << endl;
+            break;
+        }
         --depths;
     }
     cout << endl << endl;
@@ -233,6 +237,10 @@ Node BackwardElimination(vector<int> featuresList) {
         vectorOfPrev = currentBest.numList; //Gets the best node's values and places it within this variable to be used in the next depth
         if(currentBest.getEvaluation() > bestNode.getEvaluation()) {
             bestNode = currentBest;
+        }
+        else { //Evaluation Drops so stop search
+            cout << "(Warning, Accuracy Has Decreased!)" << endl;
+            break;
         }
         --depths;
     }
