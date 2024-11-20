@@ -85,12 +85,6 @@ int main() {
     cin >> algo;
     cout << endl;
 
-    cout << "Using no features and \"random\" evaluation, I get an accuracy of ";
-    // v2 = static_cast<double>(rand()) / RAND_MAX * 100.0;
-    //v2 = rand() % (51) + 50;
-    // v2 = round(v2 * 10) / 10.0;
-    // v2 = rand() % 100 + 1;
-
     //Create vector of all possible beginning features
     vector<int> featuresList;
     for(int i = 1; i <= numFeatures; ++i) {
@@ -98,9 +92,13 @@ int main() {
     }
 
     if(algo == 1) {
+        cout <<"Foroward Selection: " << endl << endl;
+        cout << "Using no features and \"random\" evaluation, I get an accuracy of ";
         bestNode = ForwardSelection(featuresList);
     }
     else if(algo == 2) {
+        cout << "Backward Elimination: " << endl << endl;
+        cout << "Using all features and \"random\" evaluation, I get an accuracy of ";
         bestNode = BackwardElimination(featuresList);
     }
 
@@ -135,36 +133,9 @@ Node ForwardSelection(vector<int> featuresList) {
 
 
 
-    //To find node at first depth because that node's vector values will be built upon by the other features
-    for(int i = 0; i < featuresList.size(); ++i) {
-        Node temp;
-
-        temp.addValue(featuresList.at(i));
-        temp.evaluation();
-            
-        if(i == 0) {
-            currentBest = temp;
-        }
-
-
-        if(temp.getEvaluation() > currentBest.getEvaluation()) {
-            currentBest = temp;
-        }
-
-        //You can add each node to the list, or only add the nodes that are the best at that current depth
-        //listOfNodes.push_back(temp);
-
-        cout << "Using feature(s) {";
-        temp.printNums();
-        cout << "} accuracy is " << temp.getEvaluation() << "%" << endl;
-    }
-
-    listOfNodes.push_back(currentBest);
-    if(currentBest.getEvaluation() > bestNode.getEvaluation()) {
-        bestNode = currentBest;
-    }
+    //Must find node at first depth because that node's vector values will be built upon by the other features
+    currentBest = bestNode;
     vectorOfPrev = currentBest.numList; //Sets the best vector list for the current depth
-    --depths;
 
     //After, loop until you reach goal state
     while(depths > 0) {
@@ -220,12 +191,54 @@ Node BackwardElimination(vector<int> featuresList) {
     Node currentBest;
     vector<Node> listOfNodes;
     vector<int> vectorOfPrev;
-    
 
 
+    //Must add all features to starting node and that would be our best node for now
+    for(int i = 0; i < featuresList.size(); ++i) {
+        bestNode.addValue(featuresList.at(i));
+    }
 
+    bestNode.evaluation();
+    cout << bestNode.getEvaluation() << "%" << endl << endl;
+    int depths = featuresList.size(); // The number of depths that the algorithm should search is the num of features there are, this is also the depth of the goal state
+    listOfNodes.push_back(bestNode); //Adding node with all feautres to list
+    cout << "Beginning search: " << endl << endl;
 
+    vectorOfPrev = bestNode.numList;
+    currentBest = bestNode;
 
+    while(depths > 0) {
+        cout << endl;
+        cout << "Feature Set {";
+        currentBest.printNums();
+        cout << "} was best, accuracy is " << currentBest.getEvaluation() << "%" << endl << endl;
+        currentBest.resetPercentage(); //Reset the percentage so the first node of each dpeth will be the currentBest
+        for(int i = 0; i < vectorOfPrev.size(); ++i) {
+            Node temp;
+            temp.numList = vectorOfPrev;
+            temp.numList.erase(temp.numList.begin() + i);
+            temp.evaluation();
+
+            if(i == 0) { //Starting currentLowest
+                currentBest = temp;
+            }
+
+            if(temp.getEvaluation() > currentBest.getEvaluation()) {
+                currentBest = temp;
+            }
+
+            cout << "Using feature(s) {";
+            temp.printNums();
+            cout << "} accuracy is " << temp.getEvaluation() << "%" << endl; 
+        }
+
+        listOfNodes.push_back(currentBest);
+        vectorOfPrev = currentBest.numList; //Gets the best node's values and places it within this variable to be used in the next depth
+        if(currentBest.getEvaluation() > bestNode.getEvaluation()) {
+            bestNode = currentBest;
+        }
+        --depths;
+    }
 
     return bestNode;
 }
