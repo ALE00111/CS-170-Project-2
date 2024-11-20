@@ -131,8 +131,6 @@ Node ForwardSelection(vector<int> featuresList) {
     listOfNodes.push_back(bestNode); //Adding empty node to list as first
     cout << "Beginning search: " << endl << endl;
 
-
-
     //Must find node at first depth because that node's vector values will be built upon by the other features
     currentBest = bestNode;
     vectorOfPrev = currentBest.numList; //Sets the best vector list for the current depth
@@ -162,7 +160,7 @@ Node ForwardSelection(vector<int> featuresList) {
             //You can add each node to the list, or only add the nodes that are the best at that current depth
             //listOfNodes.push_back(temp);
 
-            cout << "Using feature(s) {";
+            cout << "\tUsing feature(s) {";
             temp.printNums();
             cout << "} accuracy is " << temp.getEvaluation() << "%" << endl;
         }
@@ -192,7 +190,6 @@ Node BackwardElimination(vector<int> featuresList) {
     vector<Node> listOfNodes;
     vector<int> vectorOfPrev;
 
-
     //Must add all features to starting node and that would be our best node for now
     for(int i = 0; i < featuresList.size(); ++i) {
         bestNode.addValue(featuresList.at(i));
@@ -201,7 +198,7 @@ Node BackwardElimination(vector<int> featuresList) {
     bestNode.evaluation();
     cout << bestNode.getEvaluation() << "%" << endl << endl;
     int depths = featuresList.size(); // The number of depths that the algorithm should search is the num of features there are, this is also the depth of the goal state
-    listOfNodes.push_back(bestNode); //Adding node with all feautres to list
+    listOfNodes.push_back(bestNode); //Adding node with all features to list
     cout << "Beginning search: " << endl << endl;
 
     vectorOfPrev = bestNode.numList;
@@ -227,7 +224,7 @@ Node BackwardElimination(vector<int> featuresList) {
                 currentBest = temp;
             }
 
-            cout << "Using feature(s) {";
+            cout << "\tUsing feature(s) {";
             temp.printNums();
             cout << "} accuracy is " << temp.getEvaluation() << "%" << endl; 
         }
@@ -239,6 +236,7 @@ Node BackwardElimination(vector<int> featuresList) {
         }
         --depths;
     }
+    cout << endl << endl;
 
     return bestNode;
 }
