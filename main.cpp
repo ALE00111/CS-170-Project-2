@@ -109,15 +109,6 @@ int main() {
     return 0;
 }
 
-bool isGoalState(vector<Node> listOfNodes, vector<int> featuresList) {
-    for(int i = 0; i < listOfNodes.size(); ++i) {
-      if(listOfNodes.at(i).sizeOfNode() == featuresList.size()) {
-        return true;
-      }
-    }
-    return false; 
-}
-
 Node ForwardSelection(vector<int> featuresList) {
     //We're creating the forward selection algorithm(greedy)
     //Starts with empty set, then add's all features and continues to expand the node with highest evaluation with all its possibilities until reach a goal state
@@ -173,7 +164,6 @@ Node ForwardSelection(vector<int> featuresList) {
         }
         else { //Evaluation Drops so stop search
             cout << "(Warning, Accuracy Has Decreased!)" << endl;
-            break;
         }
         --depths;
     }
@@ -240,7 +230,6 @@ Node BackwardElimination(vector<int> featuresList) {
         }
         else { //Evaluation Drops so stop search
             cout << "(Warning, Accuracy Has Decreased!)" << endl;
-            break;
         }
         --depths;
     }
