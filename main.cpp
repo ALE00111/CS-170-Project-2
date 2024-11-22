@@ -12,15 +12,17 @@ class Node {
         Node() {
             percentage = 0;
         }
-
+        //adds number to list
         void addValue(int num) {
             numList.push_back(num);
         }
 
+        //returns value of number at index i
         int getValueAtIndex(int index) {
             return numList.at(index);
         }
 
+        //returns true if the list contains the number in the function
         bool numWithin(int num) {
             for(int i = 0; i < numList.size(); ++i) {
                 if(num == numList.at(i)) {
@@ -216,7 +218,7 @@ Node BackwardElimination(vector<int> featuresList) {
             if(temp.getEvaluation() > currentBest.getEvaluation()) {
                 currentBest = temp;
             }
-
+            //Print out values
             cout << "\tUsing feature(s) {";
             temp.printNums();
             cout << "} accuracy is " << temp.getEvaluation() << "%" << endl; 
