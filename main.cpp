@@ -228,6 +228,7 @@ Node BackwardElimination(vector<int> featuresList) {
             bestNode = currentBest;
         }
         else { //Evaluation drops so notify user
+            cout << endl;
             cout << "(Warning, Accuracy Has Decreased!)" << endl;
         }
         --depths;
