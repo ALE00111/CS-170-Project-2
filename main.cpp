@@ -77,7 +77,7 @@ int main() {
     cout << "Please enter a number of features: ";
     cin >> numFeatures;
     cout << endl;
-    cout << "Which algorithm would you like to use?: " << endl;
+    cout << "Type the number of the algorithm you want to run: " << endl;
     cout << "(1) Forward Selection" << endl;
     cout << "(2) Backward Elimination" << endl;
     cin >> algo;
@@ -89,11 +89,13 @@ int main() {
         featuresList.push_back(i);
     }
 
+    // if 1 is chosen perform forward selection
     if(algo == 1) {
         cout <<"Foroward Selection: " << endl << endl;
         cout << "Using no features and \"random\" evaluation, I get an accuracy of ";
         bestNode = ForwardSelection(featuresList);
     }
+    // else if 2 is chosen run Backward elimination
     else if(algo == 2) {
         cout << "Backward Elimination: " << endl << endl;
         cout << "Using all features and \"random\" evaluation, I get an accuracy of ";
@@ -160,6 +162,7 @@ Node ForwardSelection(vector<int> featuresList) {
             bestNode = currentBest;
         }
         else { //Evaluation drops so notify user
+            cout << endl;
             cout << "(Warning, Accuracy Has Decreased!)" << endl;
         }
         --depths;
@@ -192,6 +195,8 @@ Node BackwardElimination(vector<int> featuresList) {
     vectorOfPrev = bestNode.numList;
     currentBest = bestNode;
 
+    // The while loop iterates through the depths and finds the best subset of features based on their accuracy  
+    // decrement the depth every iteration until it reaches 0 to correctly iterate through all the depths
     while(depths > 0) {
         cout << endl;
         cout << "Feature Set {";
