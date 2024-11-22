@@ -10,7 +10,6 @@ using namespace std;
 class Node {
     public:
         Node() {
-            //Want to get range of values from 50 to 100
             percentage = 0;
         }
 
@@ -74,7 +73,6 @@ int main() {
     int algo;
     Node bestNode;
 
-
     cout << "Welcome to the Feature Selection ALgorithms" << endl;
     cout << "Please enter a number of features: ";
     cin >> numFeatures;
@@ -118,7 +116,7 @@ Node ForwardSelection(vector<int> featuresList) {
     vector<int> vectorOfPrev; //Since once finding the first node that is highest, all other features will be added to that individual node
     bestNode.evaluation();
     cout << bestNode.getEvaluation() << "%" << endl << endl;
-    int depths = featuresList.size(); // The number of depths that the algorithm should search is the num of features there are, this is also the depth of the goal state
+    int depths = featuresList.size(); // The number of depths that the algorithm should search is the num of features there are, this is also the depth of the goal state(all features)
     listOfNodes.push_back(bestNode); //Adding empty node to list as first
     cout << "Beginning search: " << endl << endl;
 
@@ -158,27 +156,23 @@ Node ForwardSelection(vector<int> featuresList) {
 
         listOfNodes.push_back(currentBest);
         vectorOfPrev = currentBest.numList; //Gets the best node's values and places it within this variable to be used in the next depth
-        
         if(currentBest.getEvaluation() > bestNode.getEvaluation()) {
             bestNode = currentBest;
         }
-        else { //Evaluation Drops so stop search
+        else { //Evaluation drops so notify user
             cout << "(Warning, Accuracy Has Decreased!)" << endl;
         }
         --depths;
     }
     cout << endl << endl;
-    
-    //Our goal is to stop when we searched to the point where the listOfNodes contains a node that has the values of all the features(goalState)
-    //Then return the highest percentage node(bestNode)
 
     return bestNode;
 }
 
 
 Node BackwardElimination(vector<int> featuresList) {
-    //Implementing backwwards elimination(greedy)
-    //Starts with all possible features in one set, then elimiantes one feature at a time basedo on lowest evaluation and yo ugo until theres no more features
+    //Implementing backwards elimination(greedy)
+    //Starts with all possible features in one set, then chooses highest evaluated node and continue to eliminate one feature from it until its an empty set
     Node bestNode;
     Node currentBest;
     vector<Node> listOfNodes;
@@ -228,7 +222,7 @@ Node BackwardElimination(vector<int> featuresList) {
         if(currentBest.getEvaluation() > bestNode.getEvaluation()) {
             bestNode = currentBest;
         }
-        else { //Evaluation Drops so stop search
+        else { //Evaluation drops so notify user
             cout << "(Warning, Accuracy Has Decreased!)" << endl;
         }
         --depths;
