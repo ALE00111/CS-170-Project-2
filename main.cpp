@@ -84,7 +84,9 @@ int main() {
     int numFeatures = 0;
     string line;
     Node bestNode;
+    Classifier dataset;
     vector<Instance> records; //Holds all of our lines of data
+    vector<Instance> unseen; //unseeen instance used for testing
     
     //PART 2
     //For part 2, we have to read the files to test
@@ -135,6 +137,12 @@ int main() {
     
     //Now we normalize the data
     NormalizeData(records, numFeatures);
+
+    //Now we must train the data
+    dataset.Train(records);
+    dataset.Test(unseen);
+
+    //We can now test the data with any unseen instance 
     
 
     //PART 1
@@ -205,7 +213,7 @@ void NormalizeData(vector<Instance>& records, int numFeatures) {
         for(int j = 0; j < records.size(); ++j) {
             records.at(j).restOfData.at(i) = (records.at(j).restOfData.at(i) - min.at(i)) / (max.at(i) - min.at(i));
         }
-    }
+    } 
 }   
 
 Node ForwardSelection(vector<int> featuresList) {
