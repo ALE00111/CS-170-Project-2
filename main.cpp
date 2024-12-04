@@ -5,8 +5,16 @@
 #include <vector> 
 #include <unordered_map>
 #include <algorithm>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include "classifier.h"
+#include "validator.h"
 using namespace std;
 
+//We're going to create a struct that will hold our instances initially because it will hold the list of features, 
+//the classifier, the ID, and accuracy. We can jsut simply modify node a bit and use it to store our data and we can then have a
+//classifier object hold all our nodes for us.
 class Node {
     public:
         Node() {
@@ -61,55 +69,144 @@ class Node {
             percentage = 0.0;
         }
 
-        vector<int> numList;
+        vector<int> numList; //list of feature subsets
         double percentage;
 };
 
-
+void NormalizeData(vector<Instance>& records, int numFeatures);
 Node ForwardSelection(vector<int> featuresList);
 Node BackwardElimination(vector<int> featuresList);
 
 int main() {
     srand(time(0)); 
-    int numFeatures;
+    string fileName;
     int algo;
+    int numFeatures = 0;
+    string line;
     Node bestNode;
+    vector<Instance> records; //Holds all of our lines of data
+    
+    //PART 2
+    //For part 2, we have to read the files to test
+    cout << "Select file to test: ";
+    cin >> fileName;
 
-    cout << "Welcome to the Feature Selection ALgorithms" << endl;
-    cout << "Please enter a number of features: ";
-    cin >> numFeatures;
-    cout << endl;
-    cout << "Type the number of the algorithm you want to run: " << endl;
-    cout << "(1) Forward Selection" << endl;
-    cout << "(2) Backward Elimination" << endl;
-    cin >> algo;
-    cout << endl;
+    ifstream data(fileName); //open file
 
-    //Create vector of all possible beginning features
-    vector<int> featuresList;
-    for(int i = 1; i <= numFeatures; ++i) {
-        featuresList.push_back(i);
+    //After opening the file and checking if it works, we must parse through the file and extract the all the data in the way we want 
+    //The first column of data contains the classifier, while everything afer contains the features
+    //So we must normalize the data that comes after the classifier 
+    if(!data.is_open()) { //Check if file is opened properly
+        cout << "Error opening the file!" << endl;
+        return 1;
     }
+    else { //File opened correctly
+        int i = 0;
+        while (getline(data, line)) {
+            //Now we extract and parse the data and get its classifier and the features
+            Instance temp;
+            double num;
+            //line now hold the current row of data
 
-    // if 1 is chosen perform forward selection
-    if(algo == 1) {
-        cout <<"Foroward Selection: " << endl << endl;
-        cout << "Using no features and \"random\" evaluation, I get an accuracy of ";
-        bestNode = ForwardSelection(featuresList);
-    }
-    // else if 2 is chosen run Backward elimination
-    else if(algo == 2) {
-        cout << "Backward Elimination: " << endl << endl;
-        cout << "Using all features and \"random\" evaluation, I get an accuracy of ";
-        bestNode = BackwardElimination(featuresList);
-    }
+            //Use stringstream to easily parse the string number by number
+            stringstream stream(line);// Sets to line to be parsed with stringstream
+            stream >> num; //Gets first column which is the classifier 
+            //cout << num << endl;
+            temp.classifier = num;
 
-    cout << "Finished Search! The Best feature subset is {";
-    bestNode.printNums();
-    cout << "}, which has an accuracy of " << bestNode.getEvaluation() << "%" << endl;
+            //Get the other columns with the rest of the data
+            while(stream >> num ){ 
+                temp.restOfData.push_back(num); 
+            }
+
+            //setting ID
+            temp.ID = i;
+            ++i;
+            //Now store temp into records to hold all data line by line to be normalized later
+            records.push_back(temp);
+        }
+        //cout << "Number of Instances: " << numLines << endl;
+    }
+    
+    data.close(); //Closes file DONT FORGET TO DO THIS
+
+    //get number of features, since all have the same number fo features, just use the frist instance
+    numFeatures = records.at(0).restOfData.size();
+    
+    //Now we normalize the data
+    NormalizeData(records, numFeatures);
+    
+
+    //PART 1
+    // cout << "Welcome to the Feature Selection ALgorithms" << endl;
+    // cout << "Please enter a number of features: ";
+    // cin >> numFeatures;
+    // cout << endl;
+    // cout << "Type the number of the algorithm you want to run: " << endl;
+    // cout << "(1) Forward Selection" << endl;
+    // cout << "(2) Backward Elimination" << endl;
+    // cin >> algo;
+    // cout << endl;
+
+    // //Create vector of all possible beginning features
+    // vector<int> featuresList;
+    // for(int i = 1; i <= numFeatures; ++i) {
+    //     featuresList.push_back(i);
+    // }
+
+    // // if 1 is chosen perform forward selection
+    // if(algo == 1) {
+    //     cout <<"Foroward Selection: " << endl << endl;
+    //     cout << "Using no features and \"random\" evaluation, I get an accuracy of ";
+    //     bestNode = ForwardSelection(featuresList);
+    // }
+    // // else if 2 is chosen run Backward elimination
+    // else if(algo == 2) {
+    //     cout << "Backward Elimination: " << endl << endl;
+    //     cout << "Using all features and \"random\" evaluation, I get an accuracy of ";
+    //     bestNode = BackwardElimination(featuresList);
+    // }
+
+    // cout << "Finished Search! The Best feature subset is {";
+    // bestNode.printNums();
+    // cout << "}, which has an accuracy of " << bestNode.getEvaluation() << "%" << endl;
 
     return 0;
 }
+
+void NormalizeData(vector<Instance>& records, int numFeatures) {
+    //First we have to find the min and max of each feature
+    vector<double> max; //Holds max values of all features 
+    vector<double> min; //Holds min values of all features
+    double maxHolder = 0; 
+    double minHolder = 0;
+    double value = 0;;
+
+    for(int i = 0; i < numFeatures; ++i) { //Loop through features and get min a max values
+        maxHolder = 0;
+        minHolder = 0;
+        for(int j = 0; j < records.size(); ++j) { //Loop through each instance at that specific feature
+            value = records.at(j).restOfData.at(i);
+            if(value > maxHolder) {
+                maxHolder = value;
+            }
+
+            if(value < minHolder) {
+                minHolder = value; 
+            }
+            //Once this loop finsihes completely, we now have the max and min values for that feature
+        }
+        max.push_back(maxHolder);
+        min.push_back(minHolder);
+    }
+
+    //Now we normalize each data point
+    for(int i = 0; i < numFeatures; ++i) {
+        for(int j = 0; j < records.size(); ++j) {
+            records.at(j).restOfData.at(i) = (records.at(j).restOfData.at(i) - min.at(i)) / (max.at(i) - min.at(i));
+        }
+    }
+}   
 
 Node ForwardSelection(vector<int> featuresList) {
     //We're creating the forward selection algorithm(greedy)
