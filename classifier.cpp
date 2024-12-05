@@ -5,6 +5,8 @@
 #include <limits>
 using namespace std;
 
+Classifier::Classifier() {}//Empty constructor
+
 
 // Train function to input training instances
 void Classifier::Train(const vector<Instance>& trainingData) {
@@ -17,17 +19,19 @@ int Classifier::Test(const Instance testInstance) {
     int predictedLabel = -1;
 
     for (int i = 0; i < trainingInstances.size(); ++i) {
-        double distance = ComputeDistance(testInstance.features, trainingInstances.at(i).features);
+        //find the euclidean distance in a n space(n being the number of features) between the test instances features and each traing instance and its features
+        double distance = EuclideanDistance(testInstance.features, trainingInstances.at(i).features);
         if (distance < minDistance) {
             minDistance = distance;
             predictedLabel = trainingInstances.at(i).classifier;
         }
     }
+    
     return predictedLabel;
 }
 
 // Helper function to compute Euclidean distance between two feature vectors
-double Classifier::ComputeDistance(const vector<double>& features1, const vector<double>& features2) {
+double Classifier::EuclideanDistance(const vector<double>& features1, const vector<double>& features2) {
     double sum = 0.0;
     for (int i = 0; i < features1.size(); ++i) {
         sum += pow(features1[i] - features2[i], 2);

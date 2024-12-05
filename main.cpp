@@ -138,16 +138,27 @@ int main() {
     //Now we normalize the data
     NormalizeData(records, numFeatures);
 
+
+
+
+
+
+
+
+
+
+
+
+
+    //TESTING
     //Now we must train the data
-    dataset.Train(records);
+    //dataset.Train(records);
 
     //Test for unseen instance
-    for(int i = 0; i < 10; ++i) {
-        unseen.features.push_back(0.5);
-    }
-    unseen.classifier = dataset.Test(unseen);
-
-    cout << unseen.classifier << endl;
+    // for(int i = 0; i < 10; ++i) {
+    //     unseen.features.push_back(0.8249376982347689);
+    // }
+    // unseen.classifier = dataset.Test(unseen);
 
     
 
@@ -196,7 +207,7 @@ void NormalizeData(vector<Instance>& records, int numFeatures) {
     double minHolder = 0;
     double value = 0;;
 
-    for(int i = 0; i < numFeatures; ++i) { //Loop through features and get min a max values
+    for(int i = 0; i < numFeatures; ++i) { //Loop through features and get min and max values
         maxHolder = 0;
         minHolder = 0;
         for(int j = 0; j < records.size(); ++j) { //Loop through each instance at that specific feature

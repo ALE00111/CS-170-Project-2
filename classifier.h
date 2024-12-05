@@ -28,6 +28,6 @@ class Classifier {
         int Test(const Instance testInstance); //function for inputting test instances and output is the prdicted class label
     private:
         vector<Instance> trainingInstances;
-        double ComputeDistance(const vector<double>& features1, const vector<double>& features2);
+        double EuclideanDistance(const vector<double>& features1, const vector<double>& features2);
 };
 #endif
