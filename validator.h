@@ -1,3 +1,8 @@
+#ifndef VALIDATOR_H
+#define VALIDATOR_H
+
+#include <vector>
+#include "classifier.h"
 #include <iostream>
 using namespace std;
 
@@ -7,6 +12,9 @@ using namespace std;
 class Validator {
     public:
         Validator();
-        
+
+
     private:
 };
+
+#endif
