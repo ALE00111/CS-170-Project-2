@@ -36,6 +36,6 @@ vector<Instance> Validator::createSubset(const vector<Instance>& data, int index
             newSubset.push_back(data[i]);
         }
     }
-
+    
     return newSubset;
 }
