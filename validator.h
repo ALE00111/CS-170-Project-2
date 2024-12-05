@@ -1,3 +1,8 @@
+#ifndef VALIDATOR_H
+#define VALIDATOR_H
+
+#include <vector>
+#include "classifier.h"
 #include <iostream>
 using namespace std;
 
@@ -7,6 +12,11 @@ using namespace std;
 class Validator {
     public:
         Validator();
-        
+        double Validate(const vector<Instance>& dataset, Classifier& classifier);
+
     private:
+        // helper function for leave-one-out algorithm
+        vector<Instance> createSubset(const vector<Instance>& dataset, int indexToExclude);
 };
+
+#endif
