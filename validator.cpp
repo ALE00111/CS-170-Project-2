@@ -9,8 +9,7 @@ double Validator::Validate(const vector<int> featureSubset, const vector<Instanc
     int rightPredictionCnt = 0;
 
     //First we have to create and/or modify our data to only take into account the features within our feature subset and exclude all other features
-    //One approache, make all other features not within the feature subset have a value of 0, making it easy and simple to modify and test
-    //Second approach, remove all other features that are not within the feature susbset and only add the ones need into a new data sub set
+    //Now we gotta remove all other features that are not within the feature susbset and only add the ones needed into a new data sub set called newDataset
 
     vector<Instance> newDataset = excludeFeatures(featureSubset, data);
 
