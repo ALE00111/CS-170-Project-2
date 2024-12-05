@@ -10,11 +10,6 @@ using namespace std;
 
 using namespace std; 
 
-// Define a structure for storing instances
-struct Instance {
-    vector<double> features;
-    int classLabel;
-};
 //This class is used to hold training instances in memory and use NN
 //Use Euclidean distance to measure the distance between two points
 //This done by having a eucilidean distance be calcualted with a space of 10
@@ -23,16 +18,16 @@ struct Instance {
 struct Instance {
     double classifier;
     int ID;
-    vector<double> restOfData; 
+    vector<double> features; 
 };
 
 class Classifier {
     public:
         Classifier();
         void Train(const vector<Instance>& trainingData); //function for inputting training instances
-        int Test(const Instance& testInstance); //function for inputting test instances and output is the prdicted class label
+        int Test(const Instance testInstance); //function for inputting test instances and output is the prdicted class label
     private:
         vector<Instance> trainingInstances;
-        double ComputeDistance(const vector<double>& features1, const vector<double>& features2);
+        double EuclideanDistance(const vector<double>& features1, const vector<double>& features2);
 };
 #endif

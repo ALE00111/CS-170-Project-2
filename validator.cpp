@@ -39,3 +39,4 @@ vector<Instance> Validator::createSubset(const vector<Instance>& data, int index
     
     return newSubset;
 }
+

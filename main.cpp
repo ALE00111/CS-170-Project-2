@@ -86,7 +86,7 @@ int main() {
     Node bestNode;
     Classifier dataset;
     vector<Instance> records; //Holds all of our lines of data
-    vector<Instance> unseen; //unseeen instance used for testing
+    Instance unseen; //unseeen instance used for testing
     
     //PART 2
     //For part 2, we have to read the files to test
@@ -118,7 +118,7 @@ int main() {
 
             //Get the other columns with the rest of the data
             while(stream >> num ){ 
-                temp.restOfData.push_back(num); 
+                temp.features.push_back(num); 
             }
 
             //setting ID
@@ -133,16 +133,33 @@ int main() {
     data.close(); //Closes file DONT FORGET TO DO THIS
 
     //get number of features, since all have the same number fo features, just use the frist instance
-    numFeatures = records.at(0).restOfData.size();
+    numFeatures = records.at(0).features.size();
     
     //Now we normalize the data
     NormalizeData(records, numFeatures);
 
-    //Now we must train the data
-    dataset.Train(records);
-    dataset.Test(unseen);
 
-    //We can now test the data with any unseen instance 
+
+
+
+
+
+
+
+
+
+
+
+    //TESTING
+    //Now we must train the data
+    //dataset.Train(records);
+
+    //Test for unseen instance
+    // for(int i = 0; i < 10; ++i) {
+    //     unseen.features.push_back(0.8249376982347689);
+    // }
+    // unseen.classifier = dataset.Test(unseen);
+
     
 
     //PART 1
@@ -190,11 +207,11 @@ void NormalizeData(vector<Instance>& records, int numFeatures) {
     double minHolder = 0;
     double value = 0;;
 
-    for(int i = 0; i < numFeatures; ++i) { //Loop through features and get min a max values
+    for(int i = 0; i < numFeatures; ++i) { //Loop through features and get min and max values
         maxHolder = 0;
         minHolder = 0;
         for(int j = 0; j < records.size(); ++j) { //Loop through each instance at that specific feature
-            value = records.at(j).restOfData.at(i);
+            value = records.at(j).features.at(i);
             if(value > maxHolder) {
                 maxHolder = value;
             }
@@ -211,7 +228,7 @@ void NormalizeData(vector<Instance>& records, int numFeatures) {
     //Now we normalize each data point
     for(int i = 0; i < numFeatures; ++i) {
         for(int j = 0; j < records.size(); ++j) {
-            records.at(j).restOfData.at(i) = (records.at(j).restOfData.at(i) - min.at(i)) / (max.at(i) - min.at(i));
+            records.at(j).features.at(i) = (records.at(j).features.at(i) - min.at(i)) / (max.at(i) - min.at(i));
         }
     } 
 }   
