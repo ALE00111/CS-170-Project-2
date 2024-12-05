@@ -1,27 +1,64 @@
 #include "validator.h"
+#include <chrono> //Library used to measue time for execution
 
 Validator::Validator() {}
-                                                        
-double Validator::Validate(const vector<Instance>& data, Classifier& classifier) {
-    int rightPredictionCount = 0;
+
+//Parameters include the feature subset that we're specifically using to classify with, data that holds all our instances, and the classifier which is just NN                                                        
+//This is the leave one out algorithm that is similar to K-fold cross validation
+double Validator::Validate(const vector<int> featureSubset, const vector<Instance> data, Classifier& classifier) {
+    int rightPredictionCnt = 0;
+
+    //First we have to create and/or modify our data to only take into account the features within our feature subset and exclude all other features
+    //One approache, make all other features not within the feature subset have a value of 0, making it easy and simple to modify and test
+    //Second approach, remove all other features that are not within the feature susbset and only add the ones need into a new data sub set
+
+    vector<Instance> newDataset = excludeFeatures(featureSubset, data);
 
     for (int i = 0; i < data.size(); ++i) {
-        vector<Instance> trainingData = createSubset(data, i);
-        Instance testing = data[i];
+        // Start the timer per iteration
+        auto start = chrono::high_resolution_clock::now();
+        cout << "Instance: " << i + 1 << ", ";
+        vector<Instance> trainingData = createSubset(newDataset, i);
+        Instance testingInstance = newDataset.at(i);
 
+        //First we must train the data, and set it to the training data which we modified to remove an instance 
         classifier.Train(trainingData);
 
-        // does this work?
-        int predicted = classifier.Test(testing.features);
+        int predictedClass = classifier.Test(testingInstance);
+        // newDataset.at(i).classifier;
+
+        cout << "Predicted class: " << predictedClass << ", ";
+        cout << "Acutal class: " << data.at(i).classifier << ", ";
 
         // Check if the prediction is correct
-       // if (predicted == i'm not sure what to compare it with) {
-           // ++rightPredictionCount;
-        //}
+        if (predictedClass == data.at(i).classifier) { //Compare predicted to original
+           ++rightPredictionCnt;
+        }
+        auto end = chrono::high_resolution_clock::now();
+        auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
+        cout << "Time to complete iteration in microseconds: " << duration.count() << endl;
     }
 
+    cout << "Results: " << rightPredictionCnt << "/" << data.size() << endl;
+
     // return accuracy 
-    return static_cast<double> (rightPredictionCount) / data.size();
+    return static_cast<double> (rightPredictionCnt) / data.size();
+}
+
+vector<Instance> Validator::excludeFeatures(vector<int> featureSubset, vector<Instance> dataset) {
+    vector<Instance> newDataset(dataset.size()); //set new vector as same size as dataset
+    int featureToInclude;
+
+    for(int i = 0; i < featureSubset.size(); ++i) {
+        featureToInclude = featureSubset.at(i);
+        for(int j = 0; j < newDataset.size(); ++j) {
+            newDataset.at(j).classifier = dataset.at(j).classifier;
+            newDataset.at(j).features.push_back(dataset.at(j).features.at(featureToInclude - 1)); 
+            //Subtract 1 because the features stored on the dataset start at index 0, meaning that feature 1 is at index 0, feature 2 is at index 1, etc...
+        }
+    }
+
+    return newDataset; //returns new datset that only holds the features in the feature subset
 }
 
 

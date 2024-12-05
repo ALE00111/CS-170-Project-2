@@ -8,6 +8,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <chrono> //Library used to measue time for execution
 #include "classifier.h"
 #include "validator.h"
 using namespace std;
@@ -84,7 +85,8 @@ int main() {
     int numFeatures = 0;
     string line;
     Node bestNode;
-    Classifier dataset;
+    Classifier classifier;
+    Validator v;
     vector<Instance> records; //Holds all of our lines of data
     Instance unseen; //unseeen instance used for testing
     
@@ -103,6 +105,7 @@ int main() {
         return 1;
     }
     else { //File opened correctly
+        cout << "Opening file: " << fileName << endl << endl;
         int i = 0;
         while (getline(data, line)) {
             //Now we extract and parse the data and get its classifier and the features
@@ -139,30 +142,37 @@ int main() {
     NormalizeData(records, numFeatures);
 
 
+    //TESTING FOR PART 2
+    //After normalizing data, use validator to check features with classifier(NN)
+    vector<int> featureSubset;
+
+    if(fileName == "small-test-dataset.txt") {
+        featureSubset = {3, 5, 7};
+    }
+    else if (fileName == "large-test-dataset.txt") {
+        featureSubset = {1, 15, 27};
+    }
+
+    double accuracy;
+
+    cout << "Using the dataset of " << fileName << " we will conduct Nearest Neighbor on each instance and compare its predicted class with its actual class: " << endl << endl;
+    cout << "Using only features: ";
+    for(int i = 0; i < featureSubset.size(); ++i) {
+        cout << featureSubset.at(i) << " ";
+    }
+    cout << endl << endl;
+
+    //uses chrono libaray to keep track of time
+    auto start = chrono::high_resolution_clock::now();
+    accuracy = v.Validate(featureSubset, records, classifier);
+    auto end = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
+
+    cout << "Total Accuracy: " << accuracy << "%" << endl;
+    cout << "Time to complete run in milliseconds: " << duration.count() << endl;
 
 
-
-
-
-
-
-
-
-
-
-    //TESTING
-    //Now we must train the data
-    //dataset.Train(records);
-
-    //Test for unseen instance
-    // for(int i = 0; i < 10; ++i) {
-    //     unseen.features.push_back(0.8249376982347689);
-    // }
-    // unseen.classifier = dataset.Test(unseen);
-
-    
-
-    //PART 1
+    //TESTING FOR PART 1
     // cout << "Welcome to the Feature Selection ALgorithms" << endl;
     // cout << "Please enter a number of features: ";
     // cin >> numFeatures;

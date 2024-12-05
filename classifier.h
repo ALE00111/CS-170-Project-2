@@ -30,4 +30,5 @@ class Classifier {
         vector<Instance> trainingInstances;
         double EuclideanDistance(const vector<double>& features1, const vector<double>& features2);
 };
+
 #endif
