@@ -98,8 +98,8 @@ int main() {
     ifstream data(fileName); //open file
 
     //After opening the file and checking if it works, we must parse through the file and extract the all the data in the way we want 
-    //The first column of data contains the classifier, while everything afer contains the features
-    //So we must normalize the data that comes after the classifier 
+    //The first column of data contains the classification, while everything after contains the features
+    //We must also normalize the data that comes after the classifier 
     if(!data.is_open()) { //Check if file is opened properly
         cout << "Error opening the file!" << endl;
         return 1;
