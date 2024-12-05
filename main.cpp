@@ -168,7 +168,7 @@ int main() {
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
 
-    cout << "Total Accuracy: " << accuracy << "%" << endl;
+    cout << "Total Accuracy: " << accuracy * 100.0 << "%" << endl;
     cout << "Time to complete run in milliseconds: " << duration.count() << endl;
 
 

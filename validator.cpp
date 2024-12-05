@@ -45,6 +45,7 @@ double Validator::Validate(const vector<int> featureSubset, const vector<Instanc
     return static_cast<double> (rightPredictionCnt) / data.size();
 }
 
+//helper function that returns a new data set that modified our current dataset to only inlcude the features in the feature subset
 vector<Instance> Validator::excludeFeatures(vector<int> featureSubset, vector<Instance> dataset) {
     vector<Instance> newDataset(dataset.size()); //set new vector as same size as dataset
     int featureToInclude;
