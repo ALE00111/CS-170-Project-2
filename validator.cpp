@@ -24,7 +24,6 @@ double Validator::Validate(const vector<int> featureSubset, const vector<Instanc
         classifier.Train(trainingData);
 
         int predictedClass = classifier.Test(testingInstance);
-        // newDataset.at(i).classifier;
 
         cout << "Predicted class: " << predictedClass << ", ";
         cout << "Acutal class: " << data.at(i).classifier << ", ";
