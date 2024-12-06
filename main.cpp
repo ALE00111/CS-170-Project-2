@@ -183,37 +183,67 @@ int main() {
 }
 
 void NormalizeData(vector<Instance>& records, int numFeatures) {
-    //First we have to find the min and max of each feature
-    vector<double> max; //Holds max values of all features 
-    vector<double> min; //Holds min values of all features
-    double maxHolder = 0; 
-    double minHolder = 0;
-    double value = 0;;
+    vector<double> mean;
+    vector<double> stdDev;
+    vector<double> sum;
 
-    for(int i = 0; i < numFeatures; ++i) { //Loop through features and get min a max values
-        maxHolder = 0;
-        minHolder = 0;
-        for(int j = 0; j < records.size(); ++j) { //Loop through each instance at that specific feature
-            value = records.at(j).restOfData.at(i);
-            if(value > maxHolder) {
-                maxHolder = value;
-            }
-
-            if(value < minHolder) {
-                minHolder = value; 
-            }
-            //Once this loop finsihes completely, we now have the max and min values for that feature
+    for(int i = 0; i < records.size(); ++i) {
+        for(int j = 0; j < numFeatures; ++j) {
+            sum.at(i) += records.at(j).restOfData.at(i);
         }
-        max.push_back(maxHolder);
-        min.push_back(minHolder);
     }
 
-    //Now we normalize each data point
     for(int i = 0; i < numFeatures; ++i) {
-        for(int j = 0; j < records.size(); ++j) {
-            records.at(j).restOfData.at(i) = (records.at(j).restOfData.at(i) - min.at(i)) / (max.at(i) - min.at(i));
+        mean.at(i) = (sum.at(i) / records.size());
+    }
+
+    for(int i = 0; i < records.size(); ++i) {
+        for(int j = 0; j < numFeatures; ++j) {
+            stdDev.at(j) += pow(records.at(j).restOfData.at(i) - mean.at(j), 2);
         }
-    } 
+    }
+
+    for(int i = 0; i < numFeatures; ++i) {
+        stdDev.at(i) = sqrt(stdDev.at(i) / records.size());
+    }
+
+    for(int i = 0; i < records.size(); ++i) {
+        for(int j = 0; i < numFeatures; ++j) {
+            records.at(j).restOfData.at(i) = (records.at(j).restOfData.at(i) - mean.at(j)) / stdDev.at(j);
+        }
+    }
+
+    // //First we have to find the min and max of each feature
+    // vector<double> max; //Holds max values of all features 
+    // vector<double> min; //Holds min values of all features
+    // double maxHolder = 0; 
+    // double minHolder = 0;
+    // double value = 0;;
+
+    // for(int i = 0; i < numFeatures; ++i) { //Loop through features and get min a max values
+    //     maxHolder = 0;
+    //     minHolder = 0;
+    //     for(int j = 0; j < records.size(); ++j) { //Loop through each instance at that specific feature
+    //         value = records.at(j).restOfData.at(i);
+    //         if(value > maxHolder) {
+    //             maxHolder = value;
+    //         }
+
+    //         if(value < minHolder) {
+    //             minHolder = value; 
+    //         }
+    //         //Once this loop finsihes completely, we now have the max and min values for that feature
+    //     }
+    //     max.push_back(maxHolder);
+    //     min.push_back(minHolder);
+    // }
+
+    // //Now we normalize each data point
+    // for(int i = 0; i < numFeatures; ++i) {
+    //     for(int j = 0; j < records.size(); ++j) {
+    //         records.at(j).restOfData.at(i) = (records.at(j).restOfData.at(i) - min.at(i)) / (max.at(i) - min.at(i));
+    //     }
+    // } 
 }   
 
 Node ForwardSelection(vector<int> featuresList) {
