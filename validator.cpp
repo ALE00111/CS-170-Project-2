@@ -15,8 +15,9 @@ double Validator::Validate(const vector<int> featureSubset, const vector<Instanc
 
     for (int i = 0; i < data.size(); ++i) {
         // Start the timer per iteration
-        auto start = chrono::high_resolution_clock::now();
-        cout << "Instance: " << i + 1 << ", ";
+        //I Uncommented some of the outputs here to spped up execution
+        //auto start = chrono::high_resolution_clock::now();
+        //cout << "Instance: " << i + 1 << ", ";
         vector<Instance> trainingData = createSubset(newDataset, i);
         Instance testingInstance = newDataset.at(i);
 
@@ -25,19 +26,19 @@ double Validator::Validate(const vector<int> featureSubset, const vector<Instanc
 
         int predictedClass = classifier.Test(testingInstance);
 
-        cout << "Predicted class: " << predictedClass << ", ";
-        cout << "Acutal class: " << data.at(i).classifier << ", ";
+        //cout << "Predicted class: " << predictedClass << ", ";
+        //cout << "Acutal class: " << data.at(i).classifier << ", ";
 
         // Check if the prediction is correct
         if (predictedClass == data.at(i).classifier) { //Compare predicted to original
            ++rightPredictionCnt;
         }
-        auto end = chrono::high_resolution_clock::now();
-        auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
-        cout << "Time to complete iteration in microseconds: " << duration.count() << endl;
+        // auto end = chrono::high_resolution_clock::now();
+        // auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
+        // cout << "Time to complete iteration in microseconds: " << duration.count() << endl;
     }
 
-    cout << "Results: " << rightPredictionCnt << "/" << data.size() << endl;
+    //cout << "Results: " << rightPredictionCnt << "/" << data.size() << endl;
 
     // return accuracy 
     return static_cast<double> (rightPredictionCnt) / data.size();

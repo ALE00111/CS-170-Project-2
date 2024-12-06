@@ -48,7 +48,7 @@ class Node {
         }
 
         double getEvaluation() {
-            return percentage;
+            return percentage* 100; //to get whole value instead of decimal
         }
 
         int sizeOfNode() {
@@ -75,14 +75,15 @@ class Node {
 };
 
 void NormalizeData(vector<Instance>& records, int numFeatures);
-Node ForwardSelection(vector<int> featuresList);
-Node BackwardElimination(vector<int> featuresList);
+Node ForwardSelection(vector<int> featuresList, vector<Instance> records);
+Node BackwardElimination(vector<int> featuresList, vector<Instance> records);
 
 int main() {
     srand(time(0)); 
     string fileName;
     int algo;
     int numFeatures = 0;
+    int numInstances = 0;
     string line;
     Node bestNode;
     Classifier classifier;
@@ -90,10 +91,10 @@ int main() {
     vector<Instance> records; //Holds all of our lines of data
     Instance unseen; //unseeen instance used for testing
     
-    //PART 2
-    //For part 2, we have to read the files to test
+    cout << "Welcome to the Feature Selection Algorithms" << endl;
     cout << "Select file to test: ";
-    cin >> fileName;
+    getline(cin, fileName);
+    cout << fileName << endl;
 
     ifstream data(fileName); //open file
 
@@ -105,23 +106,21 @@ int main() {
         return 1;
     }
     else { //File opened correctly
-        cout << "Opening file: " << fileName << endl << endl;
+        //cout << "Opening file: " << fileName << endl << endl;
         int i = 0;
         while (getline(data, line)) {
             //Now we extract and parse the data and get its classifier and the features
             Instance temp;
             double num;
-            //line now hold the current row of data
-
+            
             //Use stringstream to easily parse the string number by number
             stringstream stream(line);// Sets to line to be parsed with stringstream
             stream >> num; //Gets first column which is the classifier 
-            //cout << num << endl;
             temp.classifier = num;
 
-            //Get the other columns with the rest of the data
-            while(stream >> num ){ 
-                temp.features.push_back(num); 
+            //Get the other columns with the features
+            while(stream >> num){ 
+                temp.features.push_back(num);
             }
 
             //setting ID
@@ -130,81 +129,48 @@ int main() {
             //Now store temp into records to hold all data line by line to be normalized later
             records.push_back(temp);
         }
-        //cout << "Number of Instances: " << numLines << endl;
     }
-    
+
     data.close(); //Closes file DONT FORGET TO DO THIS
+    
+    cout << endl;
+    cout << "Type the number of the algorithm you want to run: " << endl;
+    cout << "(1) Forward Selection" << endl;
+    cout << "(2) Backward Elimination" << endl;
+    cin >> algo;
+    cout << endl;
 
     //get number of features, since all have the same number fo features, just use the frist instance
     numFeatures = records.at(0).features.size();
-    
+    numInstances = records.size();
+    cout << "This dataset has " << records.at(0).features.size() << " features (not including the class attribute), with " << numInstances << " instances." << endl;
+  
+
     //Now we normalize the data
+    cout << "Please wait while I normalize the data";
     NormalizeData(records, numFeatures);
+    cout << "... Done!" << endl << endl;
 
-
-    //TESTING FOR PART 2
-    //After normalizing data, use validator to check features with classifier(NN)
-    vector<int> featureSubset;
-
-    if(fileName == "small-test-dataset.txt") {
-        featureSubset = {3, 5, 7};
-    }
-    else if (fileName == "large-test-dataset.txt") {
-        featureSubset = {1, 15, 27};
+    //Create vector of all possible beginning features
+    vector<int> featuresList;
+    for(int i = 1; i <= numFeatures; ++i) {
+        featuresList.push_back(i);
     }
 
-    double accuracy;
-
-    cout << "Using the dataset of " << fileName << " we will conduct Nearest Neighbor on each instance and compare its predicted class with its actual class: " << endl << endl;
-    cout << "Using only features: ";
-    for(int i = 0; i < featureSubset.size(); ++i) {
-        cout << featureSubset.at(i) << " ";
+    if(algo == 1) { //if 1 is chosen, perform forward selection
+        cout <<"Foroward Selection: " << endl << endl;
+        cout << "Running nearest neighbor with no features (default rate), using \"leaving-one-out\" evaluation, I get an accuracy of ";
+        bestNode = ForwardSelection(featuresList, records);
     }
-    cout << endl << endl;
+    else if(algo == 2) { // else if 2 is chosen run Backward elimination
+        cout << "Backward Elimination: " << endl << endl;
+        cout << "Running nearest neighbor with all features (default rate), using \"leaving-one-out\" evaluation, I get an accuracy of ";
+        bestNode = BackwardElimination(featuresList, records);
+    }
 
-    //uses chrono libaray to keep track of time
-    auto start = chrono::high_resolution_clock::now();
-    accuracy = v.Validate(featureSubset, records, classifier);
-    auto end = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
-
-    cout << "Total Accuracy: " << accuracy * 100.0 << "%" << endl;
-    cout << "Time to complete run in milliseconds: " << duration.count() << endl;
-
-
-    //TESTING FOR PART 1
-    // cout << "Welcome to the Feature Selection ALgorithms" << endl;
-    // cout << "Please enter a number of features: ";
-    // cin >> numFeatures;
-    // cout << endl;
-    // cout << "Type the number of the algorithm you want to run: " << endl;
-    // cout << "(1) Forward Selection" << endl;
-    // cout << "(2) Backward Elimination" << endl;
-    // cin >> algo;
-    // cout << endl;
-
-    // //Create vector of all possible beginning features
-    // vector<int> featuresList;
-    // for(int i = 1; i <= numFeatures; ++i) {
-    //     featuresList.push_back(i);
-    // }
-
-    // // if 1 is chosen perform forward selection
-    // if(algo == 1) {
-    //     cout <<"Foroward Selection: " << endl << endl;
-    //     cout << "Using no features and \"random\" evaluation, I get an accuracy of ";
-    //     bestNode = ForwardSelection(featuresList);
-    // }
-    // // else if 2 is chosen run Backward elimination
-    // else if(algo == 2) {
-    //     cout << "Backward Elimination: " << endl << endl;
-    //     cout << "Using all features and \"random\" evaluation, I get an accuracy of ";
-    //     bestNode = BackwardElimination(featuresList);
-    // }
-
-    // cout << "Finished Search! The Best feature subset is {";
-    // bestNode.printNums();
-    // cout << "}, which has an accuracy of " << bestNode.getEvaluation() << "%" << endl;
+    cout << "Finished Search! The Best feature subset is {";
+    bestNode.printNums();
+    cout << "}, which has an accuracy of " << bestNode.getEvaluation() << "%" << endl;
 
     return 0;
 }
@@ -243,14 +209,17 @@ void NormalizeData(vector<Instance>& records, int numFeatures) {
     } 
 }   
 
-Node ForwardSelection(vector<int> featuresList) {
+Node ForwardSelection(vector<int> featuresList, vector<Instance> records) {
     //We're creating the forward selection algorithm(greedy)
     //Starts with empty set, then add's all features and continues to expand the node with highest evaluation with all its possibilities until reach a goal state
     vector<Node> listOfNodes; //List of all nodes with highest percentages in their depths
     Node bestNode;    //Highest percentage node in all the possibilites
     Node currentBest; //Highest percentage out of all nodes in their current depth
     vector<int> vectorOfPrev; //Since once finding the first node that is highest, all other features will be added to that individual node
-    bestNode.evaluation();
+    Validator v;
+    Classifier nearestNeighbor;
+
+    bestNode.percentage = v.Validate(bestNode.numList, records, nearestNeighbor); //This will originally try to classify a node with no features, so accuracy should be 0
     cout << bestNode.getEvaluation() << "%" << endl << endl;
     int depths = featuresList.size(); // The number of depths that the algorithm should search is the num of features there are, this is also the depth of the goal state(all features)
     listOfNodes.push_back(bestNode); //Adding empty node to list as first
@@ -275,7 +244,8 @@ Node ForwardSelection(vector<int> featuresList) {
             }
             else {
                 temp.addValue(featuresList.at(i));
-                temp.evaluation();
+                //temp.evaluation();
+                temp.percentage = v.Validate(temp.numList, records, nearestNeighbor); //use validation to get accuracy percentage
             }
 
             if(temp.getEvaluation() > currentBest.getEvaluation()) {
@@ -307,20 +277,22 @@ Node ForwardSelection(vector<int> featuresList) {
 }
 
 
-Node BackwardElimination(vector<int> featuresList) {
+Node BackwardElimination(vector<int> featuresList, vector<Instance> records) {
     //Implementing backwards elimination(greedy)
     //Starts with all possible features in one set, then chooses highest evaluated node and continue to eliminate one feature from it until its an empty set
     Node bestNode;
     Node currentBest;
     vector<Node> listOfNodes;
     vector<int> vectorOfPrev;
+    Validator v;
+    Classifier nearestNeighbor;
 
     //Must add all features to starting node and that would be our best node for now
     for(int i = 0; i < featuresList.size(); ++i) {
         bestNode.addValue(featuresList.at(i));
     }
 
-    bestNode.evaluation();
+    bestNode.percentage = v.Validate(bestNode.numList, records, nearestNeighbor); //This will originally try to classify a node with all the features
     cout << bestNode.getEvaluation() << "%" << endl << endl;
     int depths = featuresList.size(); // The number of depths that the algorithm should search is the num of features there are, this is also the depth of the goal state
     listOfNodes.push_back(bestNode); //Adding node with all features to list
@@ -341,7 +313,7 @@ Node BackwardElimination(vector<int> featuresList) {
             Node temp;
             temp.numList = vectorOfPrev;
             temp.numList.erase(temp.numList.begin() + i);
-            temp.evaluation();
+            temp.percentage = v.Validate(temp.numList, records, nearestNeighbor); //use validation to get accuracy percentage
 
             if(i == 0) { //Starting currentLowest
                 currentBest = temp;
