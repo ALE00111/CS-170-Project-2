@@ -22,7 +22,7 @@ int Classifier::Test(const Instance testInstance) {
         double distance = EuclideanDistance(testInstance.features, trainingInstances.at(i).features);
         if (distance < minDistance) {
             minDistance = distance;
-            predictedLabel = trainingInstances.at(i).classifier;
+            predictedLabel = trainingInstances.at(i).classType;
         }
     }
     

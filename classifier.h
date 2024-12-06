@@ -16,11 +16,11 @@ using namespace std;
 //For each instance of data, it will contain subset of features it has, the class label, and its current position 
 
 struct Instance {
-    double classifier;
+    double classType;
     int ID;
     vector<double> features; 
 };
-
+ 
 class Classifier {
     public:
         Classifier();

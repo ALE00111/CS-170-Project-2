@@ -1,3 +1,17 @@
+//RESULTS
+//Group: Austin Le - ale193, Andrew Permatigari - aperm003, Michelle Sun - msun082
+// DatasetID: 
+// Small Dataset Results:
+//          -   Forward: Feature Subset: {5, 3} Acc: 92%
+//          -   Backward: Feature Subset: {3, 5} Acc: 92%
+// Large Dataset Results:
+//          -   Forward: Feature Subset: {27, 1} Acc: 95.5% 
+//          -   Backward: Feature Subset: {3, 7, 8, 9, 11, 12, 13, 17, 20, 24, 25, 26, 28, 31, 35, 36, 37, 38, 39, 40} Acc: 76%
+// Titanic Dataset Results:
+//          -   Forward: Feature Subset: {2} Acc: 78.0112%
+//          -   Backward: Feature Subset: {2} Acc: 78.0112%
+
+
 #include <iostream>
 #include <random>
 #include <cmath>    
@@ -116,7 +130,7 @@ int main() {
             //Use stringstream to easily parse the string number by number
             stringstream stream(line);// Sets to line to be parsed with stringstream
             stream >> num; //Gets first column which is the classifier 
-            temp.classifier = num;
+            temp.classType = num;
 
             //Get the other columns with the features
             while(stream >> num){ 
@@ -267,7 +281,7 @@ Node ForwardSelection(vector<int> featuresList, vector<Instance> records) {
         }
         else { //Evaluation drops so notify user
             cout << endl;
-            cout << "(Warning, Accuracy Has Decreased!)" << endl;
+            cout << "(Warning, Accuracy Has Decreased! Continuing search in case of local maxima.)" << endl;
         }
         --depths;
     }
@@ -335,7 +349,7 @@ Node BackwardElimination(vector<int> featuresList, vector<Instance> records) {
         }
         else { //Evaluation drops so notify user
             cout << endl;
-            cout << "(Warning, Accuracy Has Decreased!)" << endl;
+            cout << "(Warning, Accuracy Has Decreased! Continuing search in case of local maxima.)" << endl;
         }
         --depths;
     }

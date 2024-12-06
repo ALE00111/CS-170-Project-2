@@ -14,10 +14,6 @@ double Validator::Validate(const vector<int> featureSubset, const vector<Instanc
     vector<Instance> newDataset = excludeFeatures(featureSubset, data);
 
     for (int i = 0; i < data.size(); ++i) {
-        // Start the timer per iteration
-        //I Uncommented some of the outputs here to spped up execution
-        //auto start = chrono::high_resolution_clock::now();
-        //cout << "Instance: " << i + 1 << ", ";
         vector<Instance> trainingData = createSubset(newDataset, i);
         Instance testingInstance = newDataset.at(i);
 
@@ -26,21 +22,12 @@ double Validator::Validate(const vector<int> featureSubset, const vector<Instanc
 
         int predictedClass = classifier.Test(testingInstance);
 
-        //cout << "Predicted class: " << predictedClass << ", ";
-        //cout << "Acutal class: " << data.at(i).classifier << ", ";
-
         // Check if the prediction is correct
-        if (predictedClass == data.at(i).classifier) { //Compare predicted to original
+        if (predictedClass == data.at(i).classType) { //Compare predicted to original
            ++rightPredictionCnt;
         }
-        // auto end = chrono::high_resolution_clock::now();
-        // auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
-        // cout << "Time to complete iteration in microseconds: " << duration.count() << endl;
     }
 
-    //cout << "Results: " << rightPredictionCnt << "/" << data.size() << endl;
-
-    // return accuracy 
     return static_cast<double> (rightPredictionCnt) / data.size();
 }
 
@@ -52,7 +39,7 @@ vector<Instance> Validator::excludeFeatures(vector<int> featureSubset, vector<In
     for(int i = 0; i < featureSubset.size(); ++i) {
         featureToInclude = featureSubset.at(i);
         for(int j = 0; j < newDataset.size(); ++j) {
-            newDataset.at(j).classifier = dataset.at(j).classifier;
+            newDataset.at(j).classType = dataset.at(j).classType;
             newDataset.at(j).features.push_back(dataset.at(j).features.at(featureToInclude - 1)); 
             //Subtract 1 because the features stored on the dataset start at index 0, meaning that feature 1 is at index 0, feature 2 is at index 1, etc...
         }
