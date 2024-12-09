@@ -14,7 +14,9 @@ double Validator::Validate(const vector<int> featureSubset, const vector<Instanc
     vector<Instance> newDataset = excludeFeatures(featureSubset, data);
 
     for (int i = 0; i < data.size(); ++i) {
-        vector<Instance> trainingData = createSubset(newDataset, i);
+        //vector<Instance> trainingData = createSubset(newDataset, i); 
+        vector<Instance> trainingData = newDataset;
+        trainingData.erase(trainingData.begin() + i);
         Instance testingInstance = newDataset.at(i);
 
         //First we must train the data, and set it to the training data which we modified to remove an instance 
