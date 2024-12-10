@@ -18,7 +18,7 @@ using namespace std;
 struct Instance {
     double classType;
     int ID;
-    vector<double> features; 
+    vector<double>features; 
 };
  
 class Classifier {

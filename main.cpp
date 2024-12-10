@@ -163,6 +163,25 @@ int main() {
     //Now we normalize the data
     cout << "Please wait while I normalize the data";
     NormalizeData(records, numFeatures);
+
+    ofstream plotFile("forwardselection.csv");
+    if (plotFile.is_open()) {
+        for(int i = 0; i < numFeatures; ++i) {
+            if(i == 3 || i == 4) {
+                for(int j = 0; j < records.size(); ++j) {
+                plotFile << records.at(j).features.at(i) << ' ';
+                }
+                plotFile << endl;
+            }
+        }
+        
+       //plotFile << "Hello WOrld";
+    }
+    else{
+        cerr << "Couldnt open file forward selection.csv";
+    }
+    plotFile.close();
+
     cout << "... Done!" << endl << endl;
 
     //Create vector of all possible beginning features
@@ -323,24 +342,37 @@ Node BackwardElimination(vector<int> featuresList, vector<Instance> records) {
         currentBest.printNums();
         cout << "} was best, accuracy is " << currentBest.getEvaluation() << "%" << endl << endl;
         currentBest.resetPercentage(); //Reset the percentage so the first node of each dpeth will be the currentBest
-        for(int i = 0; i < vectorOfPrev.size(); ++i) {
-            Node temp;
-            temp.numList = vectorOfPrev;
-            temp.numList.erase(temp.numList.begin() + i);
-            temp.percentage = v.Validate(temp.numList, records, nearestNeighbor); //use validation to get accuracy percentage
 
-            if(i == 0) { //Starting currentLowest
-                currentBest = temp;
-            }
-
-            if(temp.getEvaluation() > currentBest.getEvaluation()) {
-                currentBest = temp;
-            }
-            //Print out values
-            cout << "\tUsing feature(s) {";
-            temp.printNums();
-            cout << "} accuracy is " << temp.getEvaluation() << "%" << endl; 
+        ofstream plotFile("backward selection.csv");  //file for storing plotting values
+        if (!plotFile.is_open()) {
+            cerr << "Error: Could not open 'backward selection.csv'." << endl;
         }
+        else{
+            for(int i = 0; i < vectorOfPrev.size(); ++i) {
+                Node temp;
+                temp.numList = vectorOfPrev;
+                temp.numList.erase(temp.numList.begin() + i);
+                temp.percentage = v.Validate(temp.numList, records, nearestNeighbor); //use validation to get accuracy percentage
+
+                if(i == 0) { //Starting currentLowest
+                    currentBest = temp;
+                }
+
+                if(temp.getEvaluation() > currentBest.getEvaluation()) {
+                    currentBest = temp;
+                }
+                //Print out values
+                cout << "\tUsing feature(s) {";
+                temp.printNums();
+                cout << "} accuracy is " << temp.getEvaluation() << "%" << endl; 
+                
+                
+                    plotFile << "{";
+                    temp.printNums();
+                    plotFile << "}, " << temp.getEvaluation() << "%" << endl;     
+            }
+        }   
+        plotFile.close(); 
 
         listOfNodes.push_back(currentBest);
         vectorOfPrev = currentBest.numList; //Gets the best node's values and places it within this variable to be used in the next depth
