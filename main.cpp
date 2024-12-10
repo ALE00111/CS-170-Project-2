@@ -167,9 +167,13 @@ int main() {
     ofstream plotFile("forwardselection.csv");
     if (plotFile.is_open()) {
         for(int i = 0; i < numFeatures; ++i) {
-            if(i == 3 || i == 4) {
+            if(i == 1 || i == 2) {
                 for(int j = 0; j < records.size(); ++j) {
-                plotFile << records.at(j).features.at(i) << ' ';
+                plotFile << records.at(j).classType << ' ';
+                }
+                plotFile << endl;
+                for(int k = 0; k < records.size(); ++k) {
+                plotFile << records.at(k).features.at(i) << ' ';
                 }
                 plotFile << endl;
             }

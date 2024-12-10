@@ -2,44 +2,38 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Load the CSV file
+# Loading CSV file
 data = pd.read_csv("forwardselection.csv", header=None, delimiter= ' ')
 
-# Check the content of the CSV to understand its structure
+# Checking the content of the CSV 
 print("Data loaded:")
-print(data.head())  # This will show the first few rows
+print(data.head())
 
-# If the CSV file has 2 rows, we need to transpose the data
-# Transpose the data so that each row represents a feature (if not already correct)
-#data = data.transpose()
 
-# Check the transposed data
-#print("Transposed Data:")
-#print(data.head())
+classifications = data.iloc[0, :].values  #classification array
 
-# Now extract the two features (assuming each row represents a feature)
-feature_x = data.iloc[0, :].values  # First row for x-axis 
-feature_y = data.iloc[1, :].values # Second row for y-axis
+# Extracting the two features
+feature_x = data.iloc[1, :].values  
+feature_y = data.iloc[3, :].values 
 
-# Check the lengths of the features
+#color the points based on classification
+colors = ['blue' if cls == 1 else 'red' for cls in classifications]
+
+# Checking the lengths of the features
 print(f"Length of feature_x: {len(feature_x)}")
 print(f"Length of feature_y: {len(feature_y)}")
 print(type(feature_y))
 
-# Check the extracted features
+#Check the extracted features
 print(f"Feature X: {feature_x}")
 print(f"Feature Y: {feature_y}")
 
-# Create the plot
-#plt.scatter(feature_x, feature_y, c=)
-plt.scatter(feature_x, feature_y, c='blue', edgecolor='black')
-
-# Plot feature_y with another color
-plt.scatter(feature_y, feature_x, c='red', edgecolor='black')
+#Creating the plot
+plt.scatter(feature_x, feature_y, c=colors, edgecolor='black')
 
 # Add labels and title
-plt.title('Small Dataset Plot')
-plt.xlabel('Feature 4')
+plt.title('Titanic Dataset Plot')
+plt.xlabel('Feature 2')
 plt.ylabel('Feature 5')
 
 # Set axis limits to ensure data points are between 0 and 1
