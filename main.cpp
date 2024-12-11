@@ -380,7 +380,7 @@ Node meetInMiddleAlgorithm(vector<int> featuresList, vector<Instance> records) {
         // Forward Selection
         Node bestForwardNode = forwardNode;
         for(int j = 0; j < availableFeatures.size(); ++j) {
-            int feature = availableFeatures[j];
+            int feature = availableFeatures.at(j);
             if(!forwardNode.numWithin(feature)) {
                 Node temp = forwardNode; // create temp node to evaluate new feature set
                 temp.addValue(feature); // add feature to current set
@@ -391,6 +391,10 @@ Node meetInMiddleAlgorithm(vector<int> featuresList, vector<Instance> records) {
             }
         }
         forwardNode = bestForwardNode;
+
+        // initialize backwardNode with the full set of features for backward Elimination
+        backwardNode.numList = featuresList;
+        backwardNode.percentage = v.Validate(backwardNode.numList, records, nearestNeighbor);
 
         // backward elimination
         Node bestBackwardNode = backwardNode;
@@ -411,6 +415,7 @@ Node meetInMiddleAlgorithm(vector<int> featuresList, vector<Instance> records) {
         // if feature is not in, feature is added, if it is already in combined, nothing should be added
         // not sure how to implement this
         
+        // takes the combined features from above step to perform
         Node mergedNode;
         mergedNode.numList = combinedFeatures;
         mergedNode.percentage = v.Validate(mergedNode.numList, records, nearestNeighbor);
