@@ -89,6 +89,7 @@ class Node {
 void NormalizeData(vector<Instance>& records, int numFeatures);
 Node ForwardSelection(vector<int> featuresList, vector<Instance> records);
 Node BackwardElimination(vector<int> featuresList, vector<Instance> records);
+Node meetInMiddleAlgorithm(vector<int> featuresList, vector<Instance> records);
 
 int main() {
     srand(time(0)); 
@@ -149,6 +150,7 @@ int main() {
     cout << "Type the number of the algorithm you want to run: " << endl;
     cout << "(1) Forward Selection" << endl;
     cout << "(2) Backward Elimination" << endl;
+    cout << "(3) Meet in the Middle Algorithm" << endl;
     cin >> algo;
     cout << endl;
 
@@ -178,6 +180,11 @@ int main() {
         cout << "Backward Elimination: " << endl << endl;
         cout << "Running nearest neighbor with all features (default rate), using \"leaving-one-out\" evaluation, I get an accuracy of ";
         bestNode = BackwardElimination(featuresList, records);
+    }
+    else if(algo == 3) { // else if 2 is chosen run new algorithm (forward and backward, meet in the middle)
+        cout << "Hyrbid Algorithm: " << endl << endl;
+        cout << "Running nearest neighbor with all features (default rate), using \"leaving-one-out\" evaluation, I get an accuracy of ";
+        bestNode = meetInMiddleAlgorithm(featuresList, records);
     }
 
     cout << "Finished Search! The Best feature subset is {";
@@ -395,4 +402,67 @@ Node BackwardElimination(vector<int> featuresList, vector<Instance> records) {
     cout << endl << endl;
 
     return bestNode;
+}
+
+Node meetInMiddleAlgorithm(vector<int> featuresList, vector<Instance> records) {
+    Node forwardNode, backwardNode;
+    forwardNode.percentage = 0; // initialize percentage
+    Validator v;
+    Classifier nearestNeighbor;
+
+    vector<int> availableFeatures = featuresList;
+    int totalFeatures = featuresList.size();
+    int iterations = totalFeatures / 2; //divide by 2 to get the middle
+
+    // looped for half of the total features so that each algorithm can run till the middle
+    for(int i = 0; i < iterations; ++i) {
+        // Forward Selection
+        Node bestForwardNode = forwardNode;
+        for(int j = 0; j < availableFeatures.size(); ++j) {
+            int feature = availableFeatures.at(j);
+            if(!forwardNode.numWithin(feature)) {
+                Node temp = forwardNode; // create temp node to evaluate new feature set
+                temp.addValue(feature); // add feature to current set
+                temp.percentage = v.Validate(temp.numList, records, nearestNeighbor); 
+                if(temp.getEvaluation() > bestForwardNode.getEvaluation()) { 
+                    bestForwardNode = temp;
+                }
+            }
+        }
+        forwardNode = bestForwardNode;
+
+        // initialize backwardNode with the full set of features for backward Elimination
+        backwardNode.numList = featuresList;
+        backwardNode.percentage = v.Validate(backwardNode.numList, records, nearestNeighbor);
+
+        // backward elimination
+        Node bestBackwardNode = backwardNode;
+        for(int i = 0; i < backwardNode.numList.size(); ++i) {
+            Node temp = backwardNode;
+            temp.numList.erase(temp.numList.begin() + i); // remove feature at index
+            temp.percentage = v.Validate(temp.numList, records, nearestNeighbor);
+            if(temp.getEvaluation() > bestBackwardNode.getEvaluation()) {
+                bestBackwardNode = temp;
+            }
+        }
+
+        backwardNode = bestBackwardNode;
+
+        vector<int> combinedFeatures = forwardNode.numList;
+        // write code that loops through every feature in backwardNode.numList 
+        // and checks if the current feature isn't already in combined (to avoid duplicates)
+        // if feature is not in, feature is added, if it is already in combined, nothing should be added
+        // not sure how to implement this
+        
+        // takes the combined features from above step to perform
+        Node mergedNode;
+        mergedNode.numList = combinedFeatures;
+        mergedNode.percentage = v.Validate(mergedNode.numList, records, nearestNeighbor);
+    
+        cout << "Using feature(s): {";
+        mergedNode.printNums();
+        cout << "}, accuracy is: " << mergedNode.getEvaluation() << "%" << endl;
+
+        return mergedNode;
+    }   
 }
