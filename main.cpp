@@ -409,21 +409,18 @@ Node meetInMiddleAlgorithm(vector<int> featuresList, vector<Instance> records) {
 
         backwardNode = bestBackwardNode;
 
-        vector<int> combinedFeatures = forwardNode.numList;
-        // write code that loops through every feature in backwardNode.numList 
-        // and checks if the current feature isn't already in combined (to avoid duplicates)
-        // if feature is not in, feature is added, if it is already in combined, nothing should be added
-        // not sure how to implement this
+        Node bestNode;
+        if (forwardNode.getEvaluation() > backwardNode.getEvaluation()) {
+            bestNode = forwardNode; // Use forward node 
+        } 
+        else {
+            bestNode = backwardNode; // Use backward node 
+        }
         
-        // takes the combined features from above step to perform
-        Node mergedNode;
-        mergedNode.numList = combinedFeatures;
-        mergedNode.percentage = v.Validate(mergedNode.numList, records, nearestNeighbor);
-    
         cout << "Using feature(s): {";
-        mergedNode.printNums();
-        cout << "}, accuracy is: " << mergedNode.getEvaluation() << "%" << endl;
+        bestNode.printNums();
+        cout << "}, accuracy is: " << bestNode.getEvaluation() << "%" << endl;
 
-        return mergedNode;
+        return bestNode;
     }   
 }
