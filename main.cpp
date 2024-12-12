@@ -370,6 +370,7 @@ Node meetInMiddleAlgorithm(vector<int> featuresList, vector<Instance> records) {
     forwardNode.percentage = 0; // initialize percentage
     Validator v;
     Classifier nearestNeighbor;
+    Node bestNode;
 
     vector<int> availableFeatures = featuresList;
     int totalFeatures = featuresList.size();
@@ -409,7 +410,7 @@ Node meetInMiddleAlgorithm(vector<int> featuresList, vector<Instance> records) {
 
         backwardNode = bestBackwardNode;
 
-        Node bestNode;
+        
         if (forwardNode.getEvaluation() > backwardNode.getEvaluation()) {
             bestNode = forwardNode; // Use forward node 
         } 
@@ -420,7 +421,7 @@ Node meetInMiddleAlgorithm(vector<int> featuresList, vector<Instance> records) {
         cout << "Using feature(s): {";
         bestNode.printNums();
         cout << "}, accuracy is: " << bestNode.getEvaluation() << "%" << endl;
-
-        return bestNode;
     }   
+
+    return bestNode;
 }
