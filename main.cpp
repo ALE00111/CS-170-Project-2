@@ -1,6 +1,5 @@
 //RESULTS
 //Group: Austin Le - ale193, Andrew Permatigari - aperm003, Michelle Sun - msun082
-// DatasetID: 
 // Small Dataset Results:
 //          -   Forward: Feature Subset: {5, 3} Acc: 92%
 //          -   Backward: Feature Subset: {3, 5} Acc: 92%
@@ -163,7 +162,7 @@ int main() {
     numFeatures = records.at(0).features.size();
     numInstances = records.size();
     cout << "This dataset has " << records.at(0).features.size() << " features (not including the class attribute), with " << numInstances << " instances." << endl;
-  
+
 
     //Now we normalize the data
     cout << "Please wait while I normalize the data";
@@ -368,10 +367,7 @@ Node BackwardElimination(vector<int> featuresList, vector<Instance> records) {
     Classifier nearestNeighbor;
 
     //Must add all features to starting node and that would be our best node for now
-    for(int i = 0; i < featuresList.size(); ++i) {
-        bestNode.addValue(featuresList.at(i));
-    }
-
+    bestNode.numList = featuresList;
     bestNode.evaluation(records);//This will originally try to classify a node with all the features
     cout << bestNode.getEvaluation() << "%" << endl << endl;
     int depths = featuresList.size(); // The number of depths that the algorithm should search is the num of features there are, this is also the depth of the goal state
@@ -425,10 +421,6 @@ Node BackwardElimination(vector<int> featuresList, vector<Instance> records) {
 Node meetInMiddleAlgorithm(vector<int> featuresList, vector<Instance> records) {
     Node forwardNode, backwardNode;
     forwardNode.evaluation(records);
-    //Must add all features to starting node and that would be our best node for now for the backward elimination part
-    // for(int i = 0; i < featuresList.size(); ++i) {
-    //     backwardNode.addValue(featuresList.at(i));
-    // }
     backwardNode.numList = featuresList;
     backwardNode.evaluation(records); //Intial evaluation for backwards section
 
