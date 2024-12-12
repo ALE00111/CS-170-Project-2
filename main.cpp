@@ -54,11 +54,13 @@ class Node {
         }
 
         //No need for stub evaluation function, use validator
-        // void evaluation() {
-        //     //Sets percenatge to values between 0 and 100
-        //     percentage = static_cast<double>(rand()) / RAND_MAX * 100.0;
-        //     percentage = round(percentage * 10.0) / 10.0;
-        // }
+        void evaluation(vector<Instance> records) {
+            //Sets percenatge to values between 0 and 100
+            // percentage = static_cast<double>(rand()) / RAND_MAX * 100.0;
+            // percentage = round(percentage * 10.0) / 10.0;
+            //Now using validator for evaluation
+            percentage = v.Validate(numList, records, NN);
+        }
 
         double getEvaluation() {
             return percentage* 100; //to get whole value instead of decimal
@@ -85,6 +87,8 @@ class Node {
 
         vector<int> numList; //list of feature subsets
         double percentage;
+        Classifier NN;
+        Validator v;
 };
 
 void NormalizeData(vector<Instance>& records, int numFeatures);
@@ -151,7 +155,7 @@ int main() {
     cout << "Type the number of the algorithm you want to run: " << endl;
     cout << "(1) Forward Selection" << endl;
     cout << "(2) Backward Elimination" << endl;
-    cout << "(3) Meet in the Middle Algorithm" << endl;
+    cout << "(3) Meet in the Middle Algorithm" << endl; //Custom Feature selection we made that combines forward and backwards
     cin >> algo;
     cout << endl;
 
@@ -164,6 +168,7 @@ int main() {
     //Now we normalize the data
     cout << "Please wait while I normalize the data";
     NormalizeData(records, numFeatures);
+    cout << "... Done!" << endl << endl;
 
     //Used for extracting data in .csv file for plotting, can uncomment when using.
     // ofstream plotFile("forwardselection.csv");
@@ -187,8 +192,6 @@ int main() {
     //     cout << "Couldnt open file forward selection.csv";
     // }
     // plotFile.close();
-
-    cout << "... Done!" << endl << endl;
 
     //Create vector of all possible beginning features
     vector<int> featuresList;
@@ -297,17 +300,15 @@ void NormalizeData(vector<Instance>& records, int numFeatures) {
 Node ForwardSelection(vector<int> featuresList, vector<Instance> records) {
     //We're creating the forward selection algorithm(greedy)
     //Starts with empty set, then add's all features and continues to expand the node with highest evaluation with all its possibilities until reach a goal state
-    vector<Node> listOfNodes; //List of all nodes with highest percentages in their depths
     Node bestNode;    //Highest percentage node in all the possibilites
     Node currentBest; //Highest percentage out of all nodes in their current depth
     vector<int> vectorOfPrev; //Since once finding the first node that is highest, all other features will be added to that individual node
     Validator v;
     Classifier nearestNeighbor;
 
-    bestNode.percentage = v.Validate(bestNode.numList, records, nearestNeighbor); //This will originally try to classify a node with no features, so accuracy should be 0
+    bestNode.evaluation(records);//This will originally try to classify a node with no features, so accuracy should be 0
     cout << bestNode.getEvaluation() << "%" << endl << endl;
     int depths = featuresList.size(); // The number of depths that the algorithm should search is the num of features there are, this is also the depth of the goal state(all features)
-    listOfNodes.push_back(bestNode); //Adding empty node to list as first
     cout << "Beginning search: " << endl << endl;
 
     //Must find node at first depth because that node's vector values will be built upon by the other features
@@ -329,23 +330,18 @@ Node ForwardSelection(vector<int> featuresList, vector<Instance> records) {
             }
             else {
                 temp.addValue(featuresList.at(i));
-                //temp.evaluation();
-                temp.percentage = v.Validate(temp.numList, records, nearestNeighbor); //use validation to get accuracy percentage
+                temp.evaluation(records); //use validation to get accuracy percentage
             }
 
             if(temp.getEvaluation() > currentBest.getEvaluation()) {
                 currentBest = temp;
             }
 
-            //You can add each node to the list, or only add the nodes that are the best at that current depth
-            //listOfNodes.push_back(temp);
-
             cout << "\tUsing feature(s) {";
             temp.printNums();
             cout << "} accuracy is " << temp.getEvaluation() << "%" << endl;
         }
 
-        listOfNodes.push_back(currentBest);
         vectorOfPrev = currentBest.numList; //Gets the best node's values and places it within this variable to be used in the next depth
         if(currentBest.getEvaluation() > bestNode.getEvaluation()) {
             bestNode = currentBest;
@@ -367,7 +363,6 @@ Node BackwardElimination(vector<int> featuresList, vector<Instance> records) {
     //Starts with all possible features in one set, then chooses highest evaluated node and continue to eliminate one feature from it until its an empty set
     Node bestNode;
     Node currentBest;
-    vector<Node> listOfNodes;
     vector<int> vectorOfPrev;
     Validator v;
     Classifier nearestNeighbor;
@@ -377,10 +372,9 @@ Node BackwardElimination(vector<int> featuresList, vector<Instance> records) {
         bestNode.addValue(featuresList.at(i));
     }
 
-    bestNode.percentage = v.Validate(bestNode.numList, records, nearestNeighbor); //This will originally try to classify a node with all the features
+    bestNode.evaluation(records);//This will originally try to classify a node with all the features
     cout << bestNode.getEvaluation() << "%" << endl << endl;
     int depths = featuresList.size(); // The number of depths that the algorithm should search is the num of features there are, this is also the depth of the goal state
-    listOfNodes.push_back(bestNode); //Adding node with all features to list
     cout << "Beginning search: " << endl << endl;
 
     vectorOfPrev = bestNode.numList;
@@ -399,7 +393,7 @@ Node BackwardElimination(vector<int> featuresList, vector<Instance> records) {
             Node temp;
             temp.numList = vectorOfPrev;
             temp.numList.erase(temp.numList.begin() + i);
-            temp.percentage = v.Validate(temp.numList, records, nearestNeighbor); //use validation to get accuracy percentage
+            temp.evaluation(records);//use validation to get accuracy percentage
 
             if(i == 0) { //Starting currentLowest
                 currentBest = temp;
@@ -413,7 +407,6 @@ Node BackwardElimination(vector<int> featuresList, vector<Instance> records) {
             temp.printNums();
             cout << "} accuracy is " << temp.getEvaluation() << "%" << endl; 
         }
-        listOfNodes.push_back(currentBest);
         vectorOfPrev = currentBest.numList; //Gets the best node's values and places it within this variable to be used in the next depth
         if(currentBest.getEvaluation() > bestNode.getEvaluation()) {
             bestNode = currentBest;
@@ -431,7 +424,14 @@ Node BackwardElimination(vector<int> featuresList, vector<Instance> records) {
 
 Node meetInMiddleAlgorithm(vector<int> featuresList, vector<Instance> records) {
     Node forwardNode, backwardNode;
-    forwardNode.percentage = 0; // initialize percentage
+    forwardNode.evaluation(records);
+    //Must add all features to starting node and that would be our best node for now for the backward elimination part
+    // for(int i = 0; i < featuresList.size(); ++i) {
+    //     backwardNode.addValue(featuresList.at(i));
+    // }
+    backwardNode.numList = featuresList;
+    backwardNode.evaluation(records); //Intial evaluation for backwards section
+
     Validator v;
     Classifier nearestNeighbor;
     Node bestNode;
@@ -440,52 +440,90 @@ Node meetInMiddleAlgorithm(vector<int> featuresList, vector<Instance> records) {
     int totalFeatures = featuresList.size();
     int iterations = totalFeatures / 2; //divide by 2 to get the middle
 
+    //Set best Node to highest evaluation of the starting nodes
+    if(backwardNode.getEvaluation() > forwardNode.getEvaluation()) {
+        bestNode = backwardNode;
+    }
+    else {
+        bestNode = forwardNode;
+    }
+    cout << bestNode.getEvaluation() << "%" << endl << endl;
+    int depths = featuresList.size(); // The number of depths that the algorithm should search is the num of features there are, this is also the depth of the goal state
+    cout << "Beginning search: " << endl << endl;
+
+
     // looped for half of the total features so that each algorithm can run till the middle
     for(int i = 0; i < iterations; ++i) {
+        cout << endl;
+        cout << "Feature Set {";
+        bestNode.printNums();
+        cout << "} was best, accuracy is " << bestNode.getEvaluation() << "%" << endl << endl;
+        cout << endl;
+
         // Forward Selection
-        Node bestForwardNode = forwardNode;
+        Node currentBestForwardNode;
+        currentBestForwardNode.resetPercentage();
+
+        cout << "Starting forward selection: " << endl;
         for(int j = 0; j < availableFeatures.size(); ++j) {
             int feature = availableFeatures.at(j);
+            Node temp = forwardNode; // create temp node to evaluate new feature set
             if(!forwardNode.numWithin(feature)) {
-                Node temp = forwardNode; // create temp node to evaluate new feature set
                 temp.addValue(feature); // add feature to current set
-                temp.percentage = v.Validate(temp.numList, records, nearestNeighbor); 
-                if(temp.getEvaluation() > bestForwardNode.getEvaluation()) { 
-                    bestForwardNode = temp;
+                //temp.percentage = v.Validate(temp.numList, records, nearestNeighbor); 
+                temp.evaluation(records);
+                if(temp.getEvaluation() > currentBestForwardNode.getEvaluation()) { 
+                    currentBestForwardNode = temp;
                 }
+                //Print out values
+                cout << "\tUsing feature(s) {";
+                temp.printNums();
+                cout << "} accuracy is " << temp.getEvaluation() << "%" << endl; 
             }
         }
-        forwardNode = bestForwardNode;
+        forwardNode = currentBestForwardNode;
 
-        // initialize backwardNode with the full set of features for backward Elimination
-        backwardNode.numList = featuresList;
-        backwardNode.percentage = v.Validate(backwardNode.numList, records, nearestNeighbor);
+        //Backward Elimination
+        Node currentBestBackwardNode;
+        currentBestBackwardNode.resetPercentage();
 
-        // backward elimination
-        Node bestBackwardNode = backwardNode;
+        cout << "Starting Backward Elimination: "<< endl;
         for(int i = 0; i < backwardNode.numList.size(); ++i) {
             Node temp = backwardNode;
             temp.numList.erase(temp.numList.begin() + i); // remove feature at index
-            temp.percentage = v.Validate(temp.numList, records, nearestNeighbor);
-            if(temp.getEvaluation() > bestBackwardNode.getEvaluation()) {
-                bestBackwardNode = temp;
+            temp.evaluation(records);
+            if(temp.getEvaluation() > currentBestBackwardNode.getEvaluation()) {
+                currentBestBackwardNode = temp;
             }
+            //Print out values
+            cout << "\tUsing feature(s) {";
+            temp.printNums();
+            cout << "} accuracy is " << temp.getEvaluation() << "%" << endl; 
         }
+        backwardNode = currentBestBackwardNode;
+        cout << endl;
+    
 
-        backwardNode = bestBackwardNode;
-
-        
-        if (forwardNode.getEvaluation() > backwardNode.getEvaluation()) {
-            bestNode = forwardNode; // Use forward node 
+        Node currentBest;
+        if (currentBestForwardNode.getEvaluation() > currentBestBackwardNode.getEvaluation()) {
+            currentBest = currentBestForwardNode; // Use forward node 
         } 
         else {
-            bestNode = backwardNode; // Use backward node 
+            currentBest = currentBestBackwardNode; // Use backward node 
         }
         
-        cout << "Using feature(s): {";
-        bestNode.printNums();
-        cout << "}, accuracy is: " << bestNode.getEvaluation() << "%" << endl;
-    }   
+        cout << "Best sub feature from forwards and backwards is feature(s): {";
+        currentBest.printNums();
+        cout << "}, accuracy is: " << currentBest.getEvaluation() << "%" << endl << endl;
 
+        if(currentBest.getEvaluation() > bestNode.getEvaluation()) {
+            bestNode = currentBest;
+        }
+        else {
+            cout << endl;
+            cout << "(Warning, Accuracy Has Decreased! Continuing search in case of local maxima.)" << endl;
+        }
+    } 
+    cout << endl;  
     return bestNode;
 }
