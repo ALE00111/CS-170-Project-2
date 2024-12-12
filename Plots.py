@@ -32,7 +32,7 @@ print(f"Feature X: {feature_x}")
 #plt.scatter(feature_x, feature_y, c=colors, edgecolor='black')
 plt.scatter(feature_x, [0] * len(feature_x), c=colors, edgecolor='black')
 
-# Add labels and title
+# Add labels and title, adjust according to what set you are using
 plt.title('Titanic Dataset Plot')
 plt.xlabel('Feature 2')
 #plt.ylabel('Feature 3')
